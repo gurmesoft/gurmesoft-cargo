@@ -48,16 +48,25 @@ $shipment   = new \GurmesoftCargo\Shipment;
 
 $shipment->setBarcode('123123123123')   // Eşsiz barkod numaranız her gönderi için yenisini türetiniz.
 ->setInvoice('123123123123')            // Gönderi fatura numarası 
+->getWaybill('123123123123')            // İrsaliye No (Ticari gönderilerde zorunludur)
 ->setFirstName('Fikret')                // Alıcı ad
 ->setLastName('Çin')                    // Alıcı soyad
 ->setPhone('xxxxxxxxx')                 // Alıcı telefon
-->setCity('16')                         // Alıcı il plaka kodu örn .01,16,81 
+->setCity('16')                         // Alıcı il plaka kodu örn. 01,16,81 
 ->setDistrict('Karacabey')              // Alıcı ilçe bilgisi
 ->setAddress('Tav. Mh 89Sk. No5 D2')    // Alıcı adres bilgisi
-->setMail('cinfikret@gmail.com');       // Alıcı e-posta (opsiyonel)
+->setMail('cinfikret@gmail.com');       // Alıcı e-posta (Opsiyonel)
 
 $result = $yurtici->createShipment($shipment);
 
+$result->getResponse();                 // Kargo firmasından gelen tüm cevabı incelemek için kullanılır.
+
+if ($result->isSuccess()) {      
+    $result->getBarcode();              // Kargo firmasının barkod ürettiği senaryolarda barkodu taşır.
+} else {
+    echo $result->getErrorCode();       // Hata kodunu döndürür.
+    echo $result->getErrorMessage();    // Hata mesajını döndürür.
+}
 
 ```
 
