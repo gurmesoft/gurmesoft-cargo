@@ -1,0 +1,9 @@
+{
+    "name": "gurmesoft/cargo",
+    "minimum-stability": "dev",
+    "autoload": {
+      "psr-4": {
+        "GurmesoftCargo\\": "src/"
+      }
+    }
+  }
