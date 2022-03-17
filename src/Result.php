@@ -8,6 +8,8 @@ class Result
     protected $response         = false;
     protected $errorMessage     = false;
     protected $errorCode        = false;
+    protected $operationMessage = false;
+    protected $operationCode    = false;
     protected $isSuccess        = false;
 
 
@@ -35,6 +37,18 @@ class Result
         return $this;
     }
 
+    public function setOperationMessage(string $param)
+    {
+        $this->operationMessage = $param;
+        return $this;
+    }
+
+    public function setOperationCode(string $param)
+    {
+        $this->operationCode = $param;
+        return $this;
+    }
+
     public function setIsSuccess(bool $param)
     {
         $this->isSuccess = $param;
@@ -54,6 +68,16 @@ class Result
     public function getErrorMessage()
     {
         return $this->errorMessage;
+    }
+
+    public function getOperationMessage()
+    {
+        return $this->operationMessage;
+    }
+
+    public function getOperationCode()
+    {
+        return $this->operationCode;
     }
 
     public function getErrorCode()

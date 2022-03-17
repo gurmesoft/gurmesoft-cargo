@@ -89,30 +89,98 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
         try {
             $response = $this->soapClient()->createShipment($yurticiShipment);
         } catch (Exception $e) {
-            $result->setErrorMessage($e->getMessage);
-            return $result;
+            return $result->setErrorMessage($e->getMessage);
         }
 
         $result->setResponse($response);
-        if (isset($response->ShippingOrderResultVO)) {
-            $response = $response->ShippingOrderResultVO;
-            if (isset($response->outFlag) && $response->outFlag === '0') {
-                $result->setBarcode($shipment->getBarcode())->setIsSuccess(true);
-            } elseif (isset($response->outFlag) && $response->outFlag === '1' && isset($response->shippingOrderDetailVO)) {
-                $result->setErrorMessage($response->shippingOrderDetailVO->errMessage)->setErrorCode($response->shippingOrderDetailVO->errCode);
-            } else {
-                $result->setErrorMessage($response->outResult)->setErrorCode($response->errCode);
-            }
+        $response = $response->ShippingOrderResultVO;
+
+        if ($response->outFlag === '0' && !isset($response->shippingOrderDetailVO->errCode)) {
+            $result->setOperationMessage($response->outResult)
+            ->setOperationCode($response->jobId)
+            ->setBarcode($response->shippingOrderDetailVO->cargoKey)
+            ->setIsSuccess(true);
+        } elseif ($response->outFlag !== '0' && isset($response->shippingOrderDetailVO->errCode)) {
+            $result->setErrorMessage($response->shippingOrderDetailVO->errMessage)->setErrorCode($response->shippingOrderDetailVO->errCode);
+        } else {
+            $result->setErrorMessage($response->outResult)->setErrorCode($response->errCode);
         }
 
         return $result;
     }
 
-    public function cancelShipment()
+    public function cancelShipment($barcode)
     {
+        $yurticiShipment = array(
+            'wsUserName'        => $this->apiKey,
+            'wsPassword'        => $this->apiPass,
+            'wsLanguage'        => 'TR',
+            'userLanguage'      => 'TR',
+            'cargoKeys'         => $barcode,
+        );
+
+        $result = new \GurmesoftCargo\Result;
+
+        try {
+            $response = $this->soapClient()->cancelShipment($yurticiShipment);
+        } catch (Exception $e) {
+            $result->setErrorMessage($e->getMessage);
+            return $result;
+        }
+
+        $result->setResponse($response);
+        $response = $response->ShippingOrderResultVO;
+
+        if ($response->outFlag === '0' && isset($response->shippingCancelDetailVO->errCode)) {
+            $result->setErrorMessage($response->shippingCancelDetailVO->errMessage)->setErrorCode($response->shippingCancelDetailVO->errCode);
+        } elseif ($response->outFlag === '0' && !isset($response->shippingCancelDetailVO->errCode)) {
+            $result->setOperationMessage($response->shippingCancelDetailVO->operationMessage)
+            ->setOperationCode($response->shippingCancelDetailVO->operationCode)
+            ->setBarcode($response->shippingCancelDetailVO->cargoKey)
+            ->setIsSuccess(true);
+        } else {
+            $result->setErrorMessage($response->outResult)->setErrorCode($response->errCode);
+        }
+
+        return $result;
     }
 
-    public function infoShipment()
+    public function infoShipment($barcode)
     {
+        $yurticiShipment = array(
+            'wsUserName'        => $this->apiKey,
+            'wsPassword'        => $this->apiPass,
+            'wsLanguage'        => 'TR',
+            'userLanguage'      => 'TR',
+            'keys'              => $barcode,
+            'keyType'           => '0',
+            'addHistoricalData' => false,
+            'onlyTracking'      => true,
+        );
+
+        $result = new \GurmesoftCargo\Result;
+
+        try {
+            $response = $this->soapClient()->queryShipment($yurticiShipment);
+        } catch (Exception $e) {
+            $result->setErrorMessage($e->getMessage);
+            return $result;
+        }
+
+        $result->setResponse($response);
+        $response = $response->ShippingDeliveryVO;
+
+        if ($response->outFlag === '0' && !isset($response->shippingDeliveryDetailVO->errCode)) {
+            $result->setOperationMessage($response->shippingDeliveryDetailVO->operationMessage)
+            ->setOperationCode($response->shippingDeliveryDetailVO->operationCode)
+            ->setBarcode($response->shippingDeliveryDetailVO->cargoKey)
+            ->setIsSuccess(true);
+        } elseif ($response->outFlag === '0' && isset($response->shippingDeliveryDetailVO->errCode)) {
+            $result->setErrorMessage($response->shippingDeliveryDetailVO->errMessage)->setErrorCode($response->shippingDeliveryDetailVO->errCode);
+        } else {
+            $result->setErrorMessage($response->outResult)->setErrorCode($response->errCode);
+        }
+
+        return $result;
     }
 }
