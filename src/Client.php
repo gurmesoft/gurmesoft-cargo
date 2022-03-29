@@ -5,10 +5,17 @@ use Exception;
 
 class Client
 {
+    public $name;
+    public $logo;
+    public $key;
+
     public function __construct(string $company, array $options)
     {
-        $class = "\\GurmesoftCargo\\Companies\\$company";
+        $class       = "\\GurmesoftCargo\\Companies\\$company";
         $this->class = new $class($options);
+        $this->name  = $this->company($company, 'name');
+        $this->logo  = $this->company($company, 'logo');
+        $this->key   = $this->company($company, 'key');
     }
 
     public function createShipment(\GurmesoftCargo\Shipment $shipment)
@@ -31,7 +38,25 @@ class Client
     private function empty($param)
     {
         if (empty($param)) {
-            throw new Exception(__CLASS__ . " exception barcode cannot be empty.");
+            throw new Exception($this->name . " exception barcode cannot be empty.");
         }
+    }
+
+    private function company($company, $prop)
+    {
+        $companies = array(
+            'Yurtici'   => array(
+                'name'      => 'Yurtiçi Kargo',
+                'key'       => 'yurtici',
+                'logo'      => '',
+            ),
+            'Mng'       => array(
+                'name'      => 'MNG Kargo',
+                'key'       => 'mng',
+                'logo'      => '',
+            ),
+        );
+        
+        return $companies[$company][$prop];
     }
 }
