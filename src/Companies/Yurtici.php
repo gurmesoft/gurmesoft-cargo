@@ -171,10 +171,7 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
         $response = $response->ShippingDeliveryVO;
 
         if ($response->outFlag === '0' && !isset($response->shippingDeliveryDetailVO->errCode)) {
-            $result->setOperationMessage($response->shippingDeliveryDetailVO->operationMessage)
-            ->setOperationCode($response->shippingDeliveryDetailVO->operationCode)
-            ->setBarcode($response->shippingDeliveryDetailVO->cargoKey)
-            ->setIsSuccess(true);
+            $this->manageResult($result, $response->shippingDeliveryDetailVO);
         } elseif ($response->outFlag === '0' && isset($response->shippingDeliveryDetailVO->errCode)) {
             $result->setErrorMessage($response->shippingDeliveryDetailVO->errMessage)->setErrorCode($response->shippingDeliveryDetailVO->errCode);
         } else {
@@ -182,5 +179,20 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
         }
 
         return $result;
+    }
+
+    public function manageResult(&$result, $response)
+    {
+        $result->setOperationMessage($response->operationMessage)
+        ->setOperationCode($response->operationCode)
+        ->setBarcode($response->cargoKey)
+        ->setIsSuccess(true);
+
+        if ($response->operationCode > 0 && isset($response->shippingDeliveryItemDetailVO)) {
+            $trackingUrl    = $response->shippingDeliveryItemDetailVO->trackingUrl;
+            $exploded       = explode('code=', $trackingUrl);
+            $trackingCode   = $exploded[1];
+            $result->setTrackingUrl($trackingUrl)->setTrackingCode($trackingCode);
+        }
     }
 }

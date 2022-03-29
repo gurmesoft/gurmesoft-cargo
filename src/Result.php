@@ -10,6 +10,8 @@ class Result
     protected $errorCode        = false;
     protected $operationMessage = false;
     protected $operationCode    = false;
+    protected $trackingUrl      = false;
+    protected $trackingCode     = false;
     protected $isSuccess        = false;
 
 
@@ -49,6 +51,18 @@ class Result
         return $this;
     }
 
+    public function setTrackingUrl(string $param)
+    {
+        $this->trackingUrl = $param;
+        return $this;
+    }
+
+    public function setTrackingCode(string $param)
+    {
+        $this->trackingCode = $param;
+        return $this;
+    }
+
     public function setIsSuccess(bool $param)
     {
         $this->isSuccess = $param;
@@ -70,6 +84,11 @@ class Result
         return $this->errorMessage;
     }
 
+    public function getErrorCode()
+    {
+        return $this->errorCode;
+    }
+
     public function getOperationMessage()
     {
         return $this->operationMessage;
@@ -80,9 +99,14 @@ class Result
         return $this->operationCode;
     }
 
-    public function getErrorCode()
+    public function getTrackingUrl()
     {
-        return $this->errorCode;
+        return $this->trackingUrl;
+    }
+
+    public function getTrackingCode()
+    {
+        return $this->trackingCode;
     }
 
     public function isSuccess()

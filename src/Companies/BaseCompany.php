@@ -130,6 +130,6 @@ class BaseCompany
             '81'    =>'Düzce',
         );
 
-        return $cities[$param];
+        return isset($cities[$param]) ? $cities[$param] : $param;
     }
 }
