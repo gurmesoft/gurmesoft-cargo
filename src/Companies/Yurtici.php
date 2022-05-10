@@ -89,7 +89,7 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
         try {
             $response = $this->soapClient()->createShipment($yurticiShipment);
         } catch (Exception $e) {
-            return $result->setErrorMessage($e->getMessage);
+            return $result->setErrorMessage($e->getMessage());
         }
 
         $result->setResponse($response);
@@ -124,7 +124,7 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
         try {
             $response = $this->soapClient()->cancelShipment($yurticiShipment);
         } catch (Exception $e) {
-            $result->setErrorMessage($e->getMessage);
+            $result->setErrorMessage($e->getMessage());
             return $result;
         }
 
@@ -163,7 +163,7 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
         try {
             $response = $this->soapClient()->queryShipment($yurticiShipment);
         } catch (Exception $e) {
-            $result->setErrorMessage($e->getMessage);
+            $result->setErrorMessage($e->getMessage());
             return $result;
         }
 
