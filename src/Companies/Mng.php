@@ -168,7 +168,7 @@ class Mng extends \GurmesoftCargo\Companies\BaseCompany
             return $result;
         }
         
-        if (!$response->pWsError) {
+        if (isset($response->KargoBilgileriByReferansResult)) {
             $orderFromMNG = simplexml_load_string($response->KargoBilgileriByReferansResult->any)->NewDataSet->Table1;
             $result->setResponse($orderFromMNG);
             
@@ -180,8 +180,10 @@ class Mng extends \GurmesoftCargo\Companies\BaseCompany
             if ($orderFromMNG->KARGO_STATU > 0) {
                 $result->setTrackingUrl($orderFromMNG->KARGO_TAKIP_URL)->setTrackingCode($orderFromMNG->MNG_GONDERI_NO);
             }
-        } else {
+        } elseif (!empty($response->pWsError)) {
             $result->setErrorMessage($response->pWsError);
+        } else {
+            $result->setErrorMessage('Barkot sorgusunda bir hata oluştu!');
         }
 
         return $result;
