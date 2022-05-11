@@ -141,7 +141,6 @@ class Mng extends \GurmesoftCargo\Companies\BaseCompany
         }
 
         $result->setResponse($response);
-        $response = $response->ShippingOrderResultVO;
 
         return $result;
     }
