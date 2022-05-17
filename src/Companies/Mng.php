@@ -46,6 +46,16 @@ class Mng extends \GurmesoftCargo\Companies\BaseCompany
             'phone',
         ), $shipment, true);
 
+        $payment = array(
+            'gonderici-odemeli' => 'X',
+            'alici-odemeli' => 'P',
+            'kapida-odemeli' => 'U',
+        );
+
+        $paymentMethod = $shipment->getPaymentMethod();
+        
+        $type = $payment[$paymentMethod];
+        
         $list = '1:1:1:kargo:1:;';
 
         $mngShipment = [
@@ -61,7 +71,7 @@ class Mng extends \GurmesoftCargo\Companies\BaseCompany
             'pAliciMusteriBayiNo' => '',
             'pAliciMusteriAdi' => $shipment->getFirstName() . ' ' . $shipment->getLastName(),
             'pChSiparisNo' => $shipment->getBarcode(),
-            // 'pLuOdemeSekli' =>  $type === 'X' ? 'U' :  $type,
+            'pLuOdemeSekli' =>  $type === 'X' ? 'U' :  $type,
             'pLuOdemeSekli' =>  'P',
             'pFlAdresFarkli' => '0',
             'pChIl' => $this->getCity($shipment->getCity()),
@@ -79,12 +89,12 @@ class Mng extends \GurmesoftCargo\Companies\BaseCompany
             'pChEmail' => $shipment->getMail(),
             'pChVergiDairesi' => '',
             'pChVergiNumarasi' => '',
-            // 'pFlKapidaOdeme' =>  $type === "X" ? 1 : 0,
-            // 'pPrKiymet' => $type === 'X' ? $order['totalPrice'] : "0",
-            'pFlKapidaOdeme' => 0,
-            'pPrKiymet' => '',
-            // 'pUrunBedeli' => $order['totalPrice'] ? $order['totalPrice'] : "",
-            'pUrunBedeli' => "",
+            'pFlKapidaOdeme' =>  $type === "X" ? 1 : 0,
+            'pPrKiymet' => $type === 'X' ? $shipment->getTotalPriceByPaymentMethod() : "0",
+            // 'pFlKapidaOdeme' => 0,
+            // 'pPrKiymet' => '',
+            'pUrunBedeli' => $shipment->getTotalPriceByPaymentMethod() ? $shipment->getTotalPriceByPaymentMethod() : "",
+            // 'pUrunBedeli' => "",
             'pMalBedeliOdemeSekli' => 'NAKIT',
             'pPlatformKisaAdi' => '',
             'pPlatformSatisKodu' => '',

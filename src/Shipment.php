@@ -14,6 +14,8 @@ class Shipment
     protected $address;
     protected $city;
     protected $district;
+    protected $totalPriceByPaymentMethod;
+    protected $paymentMethod;
     protected $postcode;
 
     public function setBarcode(string $param)
@@ -81,6 +83,18 @@ class Shipment
         return $this;
     }
 
+    public function setPaymentMethod(string $param)
+    {
+        $this->paymentMethod = $param;
+        return $this;
+    }
+
+    public function setTotalPriceByPaymentMethod(bool $param)
+    {
+        $this->totalPriceByPaymentMethod = $param;
+        return $this;
+    }
+
     public function getBarcode()
     {
         return $this->barcode;
@@ -133,5 +147,15 @@ class Shipment
     public function getPostcode()
     {
         return $this->postcode;
+    }
+
+    public function getPaymentMethod()
+    {
+        return $this->paymentMethod;
+    }
+
+    public function getTotalPriceByPaymentMethod()
+    {
+        return $this->totalPriceByPaymentMethod;
     }
 }

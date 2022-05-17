@@ -109,6 +109,11 @@ class Result
         return $this->trackingCode;
     }
 
+    public function getPaymentMethod()
+    {
+        return $this->paymentMethod;
+    }
+
     public function isSuccess()
     {
         return $this->isSuccess;
