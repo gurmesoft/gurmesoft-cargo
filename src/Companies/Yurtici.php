@@ -134,9 +134,6 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
             $result->setErrorMessage($response->outResult)->setErrorCode($response->errCode);
         }
 
-        var_dump($result);
-        die;
-        
         return $result;
     }
 
