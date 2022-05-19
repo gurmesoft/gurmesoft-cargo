@@ -46,6 +46,34 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
             'phone',
         ), $shipment, true);
 
+        $payment = array(
+            'gonderici-odemeli' => 3,
+            'alici-odemeli' => 2,
+            'kapida-odemeli' => 0,
+            'kapida-odemeli-kredi' => 1,
+        );
+
+        $paymentMethod = $shipment->getPaymentMethod();
+        
+        $type = $payment[$paymentMethod];
+
+        $creditRole = '';
+        $selectedCredit = '';
+
+        if ($type == 1) {
+            if (!empty($shipment->getCreditRole())) {
+                $creditRole =  $shipment->getCreditRole();
+            } else {
+                $creditRole = 0;
+            }
+
+            if (!empty($shipment->getSelectedCredit())) {
+                $selectedCredit =  $shipment->getSelectedCredit();
+            } else {
+                $selectedCredit = 1;
+            }
+        }
+
         $yurticiShipment = array(
             'wsUserName'        => $this->apiKey,
             'wsPassword'        => $this->apiPass,
@@ -70,12 +98,12 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
                 'specialField1'         => '',
                 'specialField2'         => '',
                 'specialField3'         => '',
-                'ttInvoiceAmount'       => '',
-                'ttDocumentId'          => '',
-                'ttCollectionType'      => '',
+                'ttCollectionType'      => $type == 0 || $type == 1 ? $type : '',
+                'ttInvoiceAmount'       => ($type == 0 || $type == 1) && $shipment->getTotalPriceByPaymentMethod() ? $shipment->getTotalPriceByPaymentMethod() : "",
+                'ttDocumentId'          => $type == 0 || $type == 1 ? $shipment->getInvoice() : '',
                 'ttDocumentSaveType'    => '',
-                'dcSelectedCredit'      => '',
-                'dcCreditRule'          => '',
+                'dcCreditRule'          => $creditRole,
+                'dcSelectedCredit'      => $selectedCredit,
                 'description'           => '',
                 'orgGeoCode'            => '',
                 'privilegeOrder'        => '',
@@ -106,6 +134,9 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
             $result->setErrorMessage($response->outResult)->setErrorCode($response->errCode);
         }
 
+        var_dump($result);
+        die;
+        
         return $result;
     }
 
@@ -141,6 +172,7 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
         } else {
             $result->setErrorMessage($response->outResult)->setErrorCode($response->errCode);
         }
+       
 
         return $result;
     }

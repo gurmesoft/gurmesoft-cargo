@@ -16,6 +16,8 @@ class Shipment
     protected $district;
     protected $totalPriceByPaymentMethod;
     protected $paymentMethod;
+    protected $creditRole;
+    protected $selectedCredit;
     protected $postcode;
 
     public function setBarcode(string $param)
@@ -95,6 +97,18 @@ class Shipment
         return $this;
     }
 
+    public function setCreditRole(bool $param)
+    {
+        $this->creditRole = $param;
+        return $this;
+    }
+
+    public function setSelectedCredit(bool $param)
+    {
+        $this->selectedCredit = $param;
+        return $this;
+    }
+
     public function getBarcode()
     {
         return $this->barcode;
@@ -157,5 +171,15 @@ class Shipment
     public function getTotalPriceByPaymentMethod()
     {
         return $this->totalPriceByPaymentMethod;
+    }
+
+    public function getCreditRole()
+    {
+        return $this->creditRole;
+    }
+
+    public function getSelectedCredit()
+    {
+        return $this->selectedCredit;
     }
 }
