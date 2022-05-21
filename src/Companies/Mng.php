@@ -107,7 +107,7 @@ class Mng extends \GurmesoftCargo\Companies\BaseCompany
         try {
             $response = $this->soapClient()->SiparisGirisiDetayliV3($mngShipment);
         } catch (Exception $e) {
-            return $result->setErrorMessage($e->getMessage);
+            return $result->setErrorMessage($e->getMessage());
         }
         
         if ($response->SiparisGirisiDetayliV3Result != '1') {
