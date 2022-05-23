@@ -13,10 +13,10 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
 
     private function prepare($options)
     {
-        $this->url = 'https://customerservicestest.araskargo.com.tr/arascargoservice/arascargoservice.asmx?wsdl';
+        $this->url = 'https://customerws.araskargo.com.tr/arascargoservice.asmx?wsdl';
         
         if (isset($options['live']) && !$options['live']) {
-            $this->url = 'https://customerws.araskargo.com.tr/arascargoservice.asmx?wsdl';
+            $this->url = 'https://customerservicestest.araskargo.com.tr/arascargoservice/arascargoservice.asmx?wsdl';
         }
 
         if (isset($options['apiKey']) && !empty($options['apiKey'])) {
