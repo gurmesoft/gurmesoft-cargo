@@ -166,8 +166,6 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
 
         try {
             $response = $this->soapClient()->GetOrderWithIntegrationCode($yurticiShipment);
-            var_dump($response);
-            die;
         } catch (Exception $e) {
             $result->setErrorMessage($e->getMessage());
             return $result;
