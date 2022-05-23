@@ -4,7 +4,7 @@ namespace GurmesoftCargo\Companies;
 
 use Exception;
 
-class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
+class Aras extends \GurmesoftCargo\Companies\BaseCompany
 {
     public function __construct(array $options)
     {
@@ -13,10 +13,10 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
 
     private function prepare($options)
     {
-        $this->url = 'http://webservices.yurticikargo.com:8080/KOPSWebServices/ShippingOrderDispatcherServices?wsdl';
-
+        $this->url = 'https://customerservicestest.araskargo.com.tr/arascargoservice/arascargoservice.asmx?wsdl';
+        
         if (isset($options['live']) && !$options['live']) {
-            $this->url = 'http://webservices.yurticikargo.com:8080/KOPSWebServices/ShippingOrderDispatcherServices?wsdl';
+            $this->url = 'https://customerws.araskargo.com.tr/arascargoservice.asmx?wsdl';
         }
 
         if (isset($options['apiKey']) && !empty($options['apiKey'])) {
@@ -28,8 +28,8 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
         }
 
         $this->check(array(
-            'apiKey',
-            'apiPass',
+        'apiKey',
+        'apiPass',
         ), $this, false);
     }
 
@@ -57,10 +57,22 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
         
         $type = $payment[$paymentMethod];
 
+        if ($type == 1) {
+            $CodCollectionType = '1';
+        } elseif ($type == 0) {
+            $CodCollectionType= '0';
+        } else {
+            $CodCollectionType = '';
+        }
+
+        $randomNumber = $this->randStr(16);
+
         $arasShipment = [
-            "TradingWaybillNumber" => $this->randStr(32),
+            "UserName" =>  $this->apiKey,
+            "Password" =>  $this->apiPass,
+            "TradingWaybillNumber" => $shipment->getWaybill() ? $shipment->getWaybill() : $randomNumber,
             "InvoiceNumber" => $shipment->getInvoice(),
-            "IntegrationCode" => $this->randStr(32),
+            "IntegrationCode" => $shipment->getBarcode() ? $shipment->getBarcode() : $randomNumber,
             "ReceiverName" => $shipment->getFirstName() . ' ' . $shipment->getLastName(),
             "ReceiverAddress" => $shipment->getAddress(),
             "ReceiverCityName" => $this->getCity($shipment->getCity()),
@@ -69,110 +81,106 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
             "PieceCount" => 1,
             "IsCod" => $type == 1 || $type == 0 ? "1" : "0",
             "CodAmount" => ($type == 0 || $type == 1) && $shipment->getTotalPriceByPaymentMethod() ? $shipment->getTotalPriceByPaymentMethod() : "" ,
-            "CodCollectionType" => $type == 1 ? "1" :"0",
+            "CodCollectionType" => $CodCollectionType,
             "CodBillingType" => "0",
-            "PayorTypeCode" => $type == 2 ,
+            "PayorTypeCode" => $type == 3 ? 1 : 0 ,
             "IsWorldWide" => '0',
             "PieceDetails" => [
                 "PieceDetail" => [
+                    "VolumetricWeight" => "1",
+                    "Weight" => "1",
                     "BarcodeNumber" => $shipment->getBarcode(),
                 ]
             ]
         ];
-
-            $result = new \GurmesoftCargo\Result;
-
+       
+        $result = new \GurmesoftCargo\Result;
+        
         try {
-            $response = $this->soapClient()->createShipment($arasShipment);
+            $requestBody = array(
+                "orderInfo" => array(
+                    "Order"=> $arasShipment
+                ),
+                'userName' => $this->apiKey,
+                'password' => $this->apiPass
+            );
+
+            $response = $this->soapClient()->SetOrder($requestBody);
         } catch (Exception $e) {
             return $result->setErrorMessage($e->getMessage());
         }
-
-            $result->setResponse($response);
-            $response = $response->ShippingOrderResultVO;
-
-        if ($response->outFlag === '0' && !isset($response->shippingOrderDetailVO->errCode)) {
-            $result->setOperationMessage($response->outResult)
-            ->setOperationCode($response->jobId)
-            ->setBarcode($response->shippingOrderDetailVO->cargoKey)
-            ->setIsSuccess(true);
-        } elseif ($response->outFlag !== '0' && isset($response->shippingOrderDetailVO->errCode)) {
-            $result->setErrorMessage($response->shippingOrderDetailVO->errMessage)->setErrorCode($response->shippingOrderDetailVO->errCode);
+        
+        $result->setResponse($response);
+    
+        if ($response->SetOrderResult->OrderResultInfo->ResultCode != '0') {
+            $result->setErrorMessage($response->SetOrderResult->OrderResultInfo->ResultMessage)
+            ->setErrorCode($response->SetOrderResult->OrderResultInfo->ResultCode);
         } else {
-            $result->setErrorMessage($response->outResult)->setErrorCode($response->errCode);
+            $result->setOperationMessage($response->SetOrderResult->OrderResultInfo->ResultMessage)
+            ->setOperationCode($response->SetOrderResult->OrderResultInfo->OrgReceiverCustId)
+            ->setBarcode($shipment->getBarcode())
+            ->setIsSuccess(true);
         }
 
-            return $result;
+        return $result;
     }
 
     public function cancelShipment($barcode)
     {
         $yurticiShipment = array(
-            'wsUserName'        => $this->apiKey,
-            'wsPassword'        => $this->apiPass,
-            'wsLanguage'        => 'TR',
-            'userLanguage'      => 'TR',
-            'cargoKeys'         => $barcode,
+            'userName' => $this->apiKey,
+            'password' => $this->apiPass,
+            'integrationCode' => $barcode
         );
-
-        $result = new \GurmesoftCargo\Result;
-
+        
         try {
-            $response = $this->soapClient()->cancelShipment($yurticiShipment);
+            $result = new \GurmesoftCargo\Result;
+
+            $response = $this->soapClient()->CancelDispatch($yurticiShipment);
         } catch (Exception $e) {
             $result->setErrorMessage($e->getMessage());
             return $result;
         }
 
         $result->setResponse($response);
-        $response = $response->ShippingOrderResultVO;
 
-        if ($response->outFlag === '0' && isset($response->shippingCancelDetailVO->errCode)) {
-            $result->setErrorMessage($response->shippingCancelDetailVO->errMessage)->setErrorCode($response->shippingCancelDetailVO->errCode);
-        } elseif ($response->outFlag === '0' && !isset($response->shippingCancelDetailVO->errCode)) {
-            $result->setOperationMessage($response->shippingCancelDetailVO->operationMessage)
-            ->setOperationCode($response->shippingCancelDetailVO->operationCode)
-            ->setBarcode($response->shippingCancelDetailVO->cargoKey)
-            ->setIsSuccess(true);
+        if ($response->CancelDispatchResult->ResultCode != '0') {
+            $result->setErrorMessage($response->CancelDispatchResult->ResultMessage)
+            ->setErrorCode($response->CancelDispatchResult->ResultCode);
         } else {
-            $result->setErrorMessage($response->outResult)->setErrorCode($response->errCode);
+            $result->setOperationMessage($response->CancelDispatchResult->ResultMessage)
+            ->setIsSuccess(true);
         }
-       
-
         return $result;
     }
 
     public function infoShipment($barcode)
     {
         $yurticiShipment = array(
-            'wsUserName'        => $this->apiKey,
-            'wsPassword'        => $this->apiPass,
-            'wsLanguage'        => 'TR',
-            'userLanguage'      => 'TR',
-            'keys'              => $barcode,
-            'keyType'           => '0',
-            'addHistoricalData' => false,
-            'onlyTracking'      => true,
+            'userName' => $this->apiKey,
+            'password' => $this->apiPass,
+            'integrationCode' => $barcode
         );
 
         $result = new \GurmesoftCargo\Result;
 
         try {
-            $response = $this->soapClient()->queryShipment($yurticiShipment);
+            $response = $this->soapClient()->GetOrderWithIntegrationCode($yurticiShipment);
+            var_dump($response);
+            die;
         } catch (Exception $e) {
             $result->setErrorMessage($e->getMessage());
             return $result;
         }
 
         $result->setResponse($response);
-        $response = $response->ShippingDeliveryVO;
 
-        if ($response->outFlag === '0' && !isset($response->shippingDeliveryDetailVO->errCode)) {
-            $this->manageResult($result, $response->shippingDeliveryDetailVO);
-        } elseif ($response->outFlag === '0' && isset($response->shippingDeliveryDetailVO->errCode)) {
-            $result->setErrorMessage($response->shippingDeliveryDetailVO->errMessage)->setErrorCode($response->shippingDeliveryDetailVO->errCode);
+        if ($response->CancelDispatchResult->ResultCode != '0') {
+            $result->setErrorMessage($response->CancelDispatchResult->ResultMessage)
+            ->setErrorCode($response->CancelDispatchResult->ResultCode);
         } else {
-            $result->setErrorMessage($response->outResult)->setErrorCode($response->errCode);
+            $result->setOperationMessage($response->CancelDispatchResult->ResultMessage)
+            ->setIsSuccess(true);
         }
 
         return $result;

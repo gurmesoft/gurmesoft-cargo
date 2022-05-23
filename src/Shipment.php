@@ -91,7 +91,7 @@ class Shipment
         return $this;
     }
 
-    public function setTotalPriceByPaymentMethod(bool $param)
+    public function setTotalPriceByPaymentMethod($param)
     {
         $this->totalPriceByPaymentMethod = $param;
         return $this;
