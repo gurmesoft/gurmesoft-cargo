@@ -47,15 +47,13 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
         ), $shipment, true);
 
         $payment = array(
-            'gonderici-odemeli' => 3,
-            'alici-odemeli' => 2,
             'kapida-odemeli' => 0,
             'kapida-odemeli-kredi' => 1,
         );
 
         $paymentMethod = $shipment->getPaymentMethod();
         
-        $type = $payment[$paymentMethod];
+        $type = isset($payment[$paymentMethod]) ? $payment[$paymentMethod] : false;
 
         $creditRole = '';
         $selectedCredit = '';
