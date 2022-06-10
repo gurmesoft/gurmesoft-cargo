@@ -53,7 +53,8 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
 
         $paymentMethod = $shipment->getPaymentMethod();
         
-        $type = isset($payment[$paymentMethod]) ? $payment[$paymentMethod] : false;
+        $type = isset($payment[$paymentMethod]) ? $payment[$paymentMethod] : 2;
+        
 
         $creditRole = '';
         $selectedCredit = '';
@@ -96,9 +97,9 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
                 'specialField1'         => '',
                 'specialField2'         => '',
                 'specialField3'         => '',
-                'ttCollectionType'      => $type == 0 || $type == 1 ? $type : '',
-                'ttInvoiceAmount'       => ($type == 0 || $type == 1) && $shipment->getTotalPriceByPaymentMethod() ? $shipment->getTotalPriceByPaymentMethod() : "",
-                'ttDocumentId'          => $type == 0 || $type == 1 ? $shipment->getInvoice() : '',
+                'ttCollectionType'      => $type === 0 || $type === 1 ? $type : '',
+                'ttInvoiceAmount'       => ($type === 0 || $type === 1) && $shipment->getTotalPriceByPaymentMethod() ? $shipment->getTotalPriceByPaymentMethod() : "",
+                'ttDocumentId'          => $type === 0 || $type === 1 ? $shipment->getInvoice() : '',
                 'ttDocumentSaveType'    => '',
                 'dcCreditRule'          => $creditRole,
                 'dcSelectedCredit'      => $selectedCredit,
