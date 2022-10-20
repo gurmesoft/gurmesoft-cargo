@@ -37,7 +37,6 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
     {
         $this->check(array(
             'barcode',
-            'invoice',
             'firstName',
             'lastName',
             'address',

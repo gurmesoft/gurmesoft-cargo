@@ -37,7 +37,6 @@ class Mng extends \GurmesoftCargo\Companies\BaseCompany
     {
         $this->check(array(
             'barcode',
-            'invoice',
             'firstName',
             'lastName',
             'address',
@@ -72,7 +71,7 @@ class Mng extends \GurmesoftCargo\Companies\BaseCompany
             'pAliciMusteriAdi' => $shipment->getFirstName() . ' ' . $shipment->getLastName(),
             'pChSiparisNo' => $shipment->getBarcode(),
             'pLuOdemeSekli' =>  $type === 'X' ? 'U' :  $type,
-            'pLuOdemeSekli' =>  'P',
+            // 'pLuOdemeSekli' =>  'P',
             'pFlAdresFarkli' => '0',
             'pChIl' => $this->getCity($shipment->getCity()),
             'pChIlce' => $shipment->getDistrict(),

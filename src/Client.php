@@ -60,6 +60,11 @@ class Client
                 'key'       => 'aras',
                 'logo'      => '',
             ),
+            'Ptt'       => array(
+                'name'      => 'Ptt Kargo',
+                'key'       => 'ptt',
+                'logo'      => '',
+            ),
         );
         
         return $companies[$company][$prop];

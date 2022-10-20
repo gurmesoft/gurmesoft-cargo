@@ -16,15 +16,15 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
     {
         $this->url = 'https://customerws.araskargo.com.tr/arascargoservice.asmx?wsdl';
 
-        if (isset($options['live']) && ! $options['live']) {
+        if (isset($options['live']) && !$options['live']) {
             $this->url = 'https://customerservicestest.araskargo.com.tr/arascargoservice/arascargoservice.asmx?wsdl';
         }
 
-        if (isset($options['apiKey']) && ! empty($options['apiKey'])) {
+        if (isset($options['apiKey']) && !empty($options['apiKey'])) {
             $this->apiKey = $options['apiKey'];
         }
 
-        if (isset($options['apiPass']) && ! empty($options['apiPass'])) {
+        if (isset($options['apiPass']) && !empty($options['apiPass'])) {
             $this->apiPass = $options['apiPass'];
         }
 
@@ -43,7 +43,6 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
         $this->check(
             array(
                 'barcode',
-                'invoice',
                 'firstName',
                 'lastName',
                 'address',
@@ -64,7 +63,7 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
 
         $paymentMethod = $shipment->getPaymentMethod();
 
-        $type = $payment[ $paymentMethod ];
+        $type = $payment[$paymentMethod];
 
         if ($type == 1) {
             $CodCollectionType = '1';
@@ -89,7 +88,7 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
             'ReceiverPhone1'       => $shipment->getPhone(),
             'PieceCount'           => 1,
             'IsCod'                => $type == 1 || $type == 0 ? '1' : '0',
-            'CodAmount'            => ( $type == 0 || $type == 1 ) && $shipment->getTotalPriceByPaymentMethod() ? $shipment->getTotalPriceByPaymentMethod() : '',
+            'CodAmount'            => ($type == 0 || $type == 1) && $shipment->getTotalPriceByPaymentMethod() ? $shipment->getTotalPriceByPaymentMethod() : '',
             'CodCollectionType'    => $CodCollectionType,
             'CodBillingType'       => '0',
             'PayorTypeCode'        => $type == 3 ? 1 : 0,
@@ -123,12 +122,12 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
 
         if ($response->SetOrderResult->OrderResultInfo->ResultCode != '0') {
             $result->setErrorMessage($response->SetOrderResult->OrderResultInfo->ResultMessage)
-            ->setErrorCode($response->SetOrderResult->OrderResultInfo->ResultCode);
+                ->setErrorCode($response->SetOrderResult->OrderResultInfo->ResultCode);
         } else {
             $result->setOperationMessage($response->SetOrderResult->OrderResultInfo->ResultMessage)
-            ->setOperationCode($response->SetOrderResult->OrderResultInfo->OrgReceiverCustId)
-            ->setBarcode($shipment->getBarcode())
-            ->setIsSuccess(true);
+                ->setOperationCode($response->SetOrderResult->OrderResultInfo->OrgReceiverCustId)
+                ->setBarcode($shipment->getBarcode())
+                ->setIsSuccess(true);
         }
 
         return $result;
@@ -136,7 +135,7 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
 
     public function cancelShipment($barcode)
     {
-        $yurticiShipment = array(
+        $arasShipment = array(
             'userName'        => $this->apiKey,
             'password'        => $this->apiPass,
             'integrationCode' => $barcode,
@@ -145,7 +144,7 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
         try {
             $result = new \GurmesoftCargo\Result;
 
-            $response = $this->soapClient()->CancelDispatch($yurticiShipment);
+            $response = $this->soapClient()->CancelDispatch($arasShipment);
         } catch (Exception $e) {
             $result->setErrorMessage($e->getMessage());
             return $result;
@@ -155,17 +154,17 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
 
         if ($response->CancelDispatchResult->ResultCode != '0') {
             $result->setErrorMessage($response->CancelDispatchResult->ResultMessage)
-            ->setErrorCode($response->CancelDispatchResult->ResultCode);
+                ->setErrorCode($response->CancelDispatchResult->ResultCode);
         } else {
             $result->setOperationMessage($response->CancelDispatchResult->ResultMessage)
-            ->setIsSuccess(true);
+                ->setIsSuccess(true);
         }
         return $result;
     }
 
     public function infoShipment($barcode)
     {
-        $yurticiShipment = array(
+        $arasShipment = array(
             'userName'        => $this->apiKey,
             'password'        => $this->apiPass,
             'integrationCode' => $barcode,
@@ -174,7 +173,7 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
         $result = new \GurmesoftCargo\Result;
 
         try {
-            $response = $this->soapClient()->GetOrderWithIntegrationCode($yurticiShipment);
+            $response = $this->soapClient()->GetOrderWithIntegrationCode($arasShipment);
         } catch (Exception $e) {
             $result->setErrorMessage($e->getMessage());
             return $result;
@@ -182,12 +181,11 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
 
         $result->setResponse($response);
 
-        if ($response->CancelDispatchResult->ResultCode != '0') {
-            $result->setErrorMessage($response->CancelDispatchResult->ResultMessage)
-            ->setErrorCode($response->CancelDispatchResult->ResultCode);
+        if (!isset($response->GetOrderWithIntegrationCodeResult->Order->PieceDetails)) {
+            $result->setErrorMessage($response->GetOrderWithIntegrationCodeResult->Order->IntegrationCode)->setIsSuccess(false);
         } else {
-            $result->setOperationMessage($response->CancelDispatchResult->ResultMessage)
-            ->setIsSuccess(true);
+            $result->setOperationMessage($response->GetOrderWithIntegrationCodeResult->Order->IntegrationCode)
+                ->setIsSuccess(true);
         }
 
         return $result;
@@ -196,9 +194,9 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
     public function manageResult(&$result, $response)
     {
         $result->setOperationMessage($response->operationMessage)
-        ->setOperationCode($response->operationCode)
-        ->setBarcode($response->cargoKey)
-        ->setIsSuccess(true);
+            ->setOperationCode($response->operationCode)
+            ->setBarcode($response->cargoKey)
+            ->setIsSuccess(true);
 
         if ($response->operationCode > 0 && isset($response->shippingDeliveryItemDetailVO)) {
             $trackingUrl  = $response->shippingDeliveryItemDetailVO->trackingUrl;
@@ -216,7 +214,7 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
 
         for ($i = 0; $i < $length; $i++) {
             $rand = mt_rand(0, $max);
-            $str .= $characters[ $rand ];
+            $str .= $characters[$rand];
         }
 
         return $str;
