@@ -58,7 +58,7 @@ class Mng extends \GurmesoftCargo\Companies\BaseCompany
         $list = '1:1:1:kargo:1:;';
 
         $mngShipment = [
-            'pChIrsaliyeNo' => '',
+            'pChIrsaliyeNo' => $shipment->getWaybill(),
             'pChBarkod' => $shipment->getBarcode(),
             'pChIcerik' => 'ürün',
             'pGonderiHizmetSekli' => 'NORMAL',
