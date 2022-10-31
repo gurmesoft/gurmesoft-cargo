@@ -178,10 +178,20 @@ class Mng extends \GurmesoftCargo\Companies\BaseCompany
         }
         
         if (isset($response->KargoBilgileriByReferansResult)) {
+            $status = [
+                0 => "on-hold",
+                1 => "processing",
+                2 => "processing",
+                3 => "processing",
+                4 => "processing",
+                5 => "complated",
+                7 => "complated",
+            ];
+
             $orderFromMNG = simplexml_load_string($response->KargoBilgileriByReferansResult->any)->NewDataSet->Table1;
             $result->setResponse($orderFromMNG);
             
-            $result->setOperationMessage($orderFromMNG->KARGO_STATU_ACIKLAMA)
+            $result->setOperationMessage($status[$orderFromMNG->KARGO_STATU])
             ->setOperationCode($orderFromMNG->KARGO_STATU)
             ->setBarcode($barcode)
             ->setIsSuccess(true);

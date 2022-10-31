@@ -210,7 +210,17 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
 
     public function manageResult(&$result, $response)
     {
-        $result->setOperationMessage($response->operationMessage)
+        $status = [
+            "Kargo İşlem Görmemiş." => 'on-hold',
+            "Kargo teslim edilmiştir." => 'complated'
+        ];
+
+        if(empty($status[$response->operationMessage])) {
+            $status[$response->operationMessage] ='processing';
+        }
+        
+
+        $result->setOperationMessage($status[$response->operationMessage])
         ->setOperationCode($response->operationCode)
         ->setBarcode($response->cargoKey)
         ->setIsSuccess(true);
