@@ -164,6 +164,18 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
 
     public function infoShipment($barcode)
     {
+        $this->url = 'https://customerservicestest.araskargo.com.tr/ArasCargoIntegrationService.svc?wsdl';
+        $loginInfo = "<LoginInfo>
+                        <UserName>{$this->apiKey}</UserName>
+                        <Password>{$this->apiPass}</Password>
+                        <CustomerCode>1932448851342</CustomerCode>
+                    </LoginInfo>";
+
+        $queryInfo = "<QueryInfo>
+                        <QueryType>9</QueryType>
+                        <IntegrationCode>123456789876</IntegrationCode>
+                    </QueryInfo>";
+
         $arasShipment = array(
             'userName'        => $this->apiKey,
             'password'        => $this->apiPass,
@@ -173,7 +185,9 @@ class Aras extends \GurmesoftCargo\Companies\BaseCompany
         $result = new \GurmesoftCargo\Result;
 
         try {
-            $response = $this->soapClient()->GetOrderWithIntegrationCode($arasShipment);
+            // $response = $this->soapClient()->GetOrderWithIntegrationCode($arasShipment);
+            $response = $this->soapClient()->GetQueryXML($loginInfo . $queryInfo);
+
         } catch (Exception $e) {
             $result->setErrorMessage($e->getMessage());
             return $result;
