@@ -184,8 +184,8 @@ class Mng extends \GurmesoftCargo\Companies\BaseCompany
                 2 => "processing",
                 3 => "processing",
                 4 => "processing",
-                5 => "complated",
-                7 => "complated",
+                5 => "completed",
+                7 => "completed",
             ];
 
             $orderFromMNG = simplexml_load_string($response->KargoBilgileriByReferansResult->any)->NewDataSet->Table1;
