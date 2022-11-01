@@ -220,8 +220,8 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
         }
         
 
-        $result->setOperationMessage($status[$response->operationMessage])
-        ->setOperationCode($response->operationCode)
+        $result->setOperationMessage($response->operationMessage)
+        ->setOperationCode($status[$response->operationMessage])
         ->setBarcode($response->cargoKey)
         ->setIsSuccess(true);
 
