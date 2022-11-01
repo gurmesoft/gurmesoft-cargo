@@ -191,8 +191,8 @@ class Mng extends \GurmesoftCargo\Companies\BaseCompany
             $orderFromMNG = simplexml_load_string($response->KargoBilgileriByReferansResult->any)->NewDataSet->Table1;
             $result->setResponse($orderFromMNG);
             
-            $result->setOperationMessage($status[$orderFromMNG->KARGO_STATU])
-            ->setOperationCode($orderFromMNG->KARGO_STATU)
+            $result->setOperationMessage($orderFromMNG->KARGO_STATU_ACIKLAMA)
+            ->setOperationCode($status[$orderFromMNG->KARGO_STATU])
             ->setBarcode($barcode)
             ->setIsSuccess(true);
 
