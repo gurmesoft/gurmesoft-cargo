@@ -212,7 +212,7 @@ class Yurtici extends \GurmesoftCargo\Companies\BaseCompany
     {
         $status = [
             "Kargo İşlem Görmemiş." => 'on-hold',
-            "Kargo teslim edilmiştir." => 'complated'
+            "Kargo teslim edilmiştir." => 'completed'
         ];
 
         if(empty($status[$response->operationMessage])) {
